@@ -60,7 +60,7 @@ with col2:
 
 col3, col4 = st.columns(2)
 with col3:
-    st.header("Mode of Payments per Year")
+    st.header("EMI Payments")
     get_method=requests.get('http://127.0.0.1:8000/analytics/?type=emi')
     if get_method.status_code == 200:
         # Extract the data from the response
