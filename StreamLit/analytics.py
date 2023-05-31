@@ -9,13 +9,12 @@ import pandas as pd
 import altair as alt
 
 
-import streamlit as st
-
-    
+st.set_page_config(layout="wide")
+st.markdown("<h1 style='text-align: center; '>Toucan Analytics</h1> <br>", unsafe_allow_html=True)
 col1, col2 = st.columns(2, gap="large")
 
 with col1:
-    st.header("PIE Chart")
+    st.markdown("<h2 style='text-align: center;margin-bottom:10px'>PIE CHART</h2>", unsafe_allow_html=True)
     #  User input form
     url = "http://127.0.0.1:8000/analytics/?type=pie"
     response = requests.get(url)
@@ -25,10 +24,11 @@ with col1:
         labels = data['labels']
         sizes = data['sizes']
         # Pie chart, where the slices will be ordered and plotted counter-clockwise:
-    
+        colors = ['violet','indigo','blue','green','yellow','orange']
+        wedgeprops = {'linewidth': 0.5, 'edgecolor': 'white'}
         explode = [0,0,0,0,0,0]
-        fig1, ax1 = plt.subplots()
-        ax1.pie(sizes, explode=explode, labels=labels, autopct='%1.1f%%',startangle=90)
+        fig1, ax1 = plt.subplots(figsize=(4, 4))
+        ax1.pie(sizes, explode=explode, labels=labels, autopct='%1.1f%%',startangle=90,colors=colors,wedgeprops=wedgeprops)
         ax1.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
         st.pyplot(fig1)
         st.write('\n')
@@ -37,7 +37,10 @@ with col1:
         
 
 with col2:
-    st.header("Mode of Payments per Year")
+   
+    st.markdown("<h2 style='text-align: center;'>Mode of Payments per Year</h2>", unsafe_allow_html=True)
+    st.header("\n")
+    
     get_method=requests.get('http://127.0.0.1:8000/analytics/?type=bar')
     if get_method.status_code == 200:
         # Extract the data from the response
@@ -48,7 +51,7 @@ with col2:
             'Amount_spent': amount_list,
             'Mode of Payment': mode_list
         })
-        bar_chart = alt.Chart(source).mark_bar().encode(
+        bar_chart = alt.Chart(source).mark_bar(size=50).encode(
             y='Amount_spent:Q',
             x='Mode of Payment:O',
         )
@@ -58,9 +61,10 @@ with col2:
         st.error(f'Error: {get_method.status_code}')
 
 
-col3, col4 = st.columns(2)
+col3, col4 = st.columns(2, gap="large")
 with col3:
-    st.header("EMI Payments")
+    st.markdown("<h2 style='text-align: center;margin-bottom:20px'>EMI PAYMENTS</h2>", unsafe_allow_html=True)
+
     get_method=requests.get('http://127.0.0.1:8000/analytics/?type=emi')
     if get_method.status_code == 200:
         # Extract the data from the response
@@ -71,7 +75,7 @@ with col3:
             'EMI PAID ON TIME': in_time,
             'NUMBER OF CUSTOMERS': total
         })
-        bar_chart = alt.Chart(source).mark_bar().encode(
+        bar_chart = alt.Chart(source).mark_bar(size=70).encode(
             x='EMI PAID ON TIME:O',
             y='NUMBER OF CUSTOMERS:Q',
         )
@@ -81,7 +85,7 @@ with col3:
         st.error(f'Error: {get_method.status_code}')
 
 with col4:
-    st.header("Frequent Mode Transanction by an individual Customer")
+    st.markdown("<h2 style='text-align: center;margin-bottom:20px'>Frequent Mode Transanction by an individual Customer</h2>", unsafe_allow_html=True)
     get_method=requests.get('http://127.0.0.1:8000/analytics/?type=table')
     if get_method.status_code == 200:
         # Extract the data from the response
@@ -105,9 +109,4 @@ with col4:
         # st.write('\n')
     else:
         st.error(f'Error: {get_method.status_code}')
-    
-
-
-
-   
     
