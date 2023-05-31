@@ -74,6 +74,6 @@ def analytics(request):
         else:
             return HttpResponse("NOT PIE")
     else:
-        return HttpResponse("something")
+        return HttpResponse("something wrong ")
 
 
