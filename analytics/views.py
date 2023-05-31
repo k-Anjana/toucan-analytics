@@ -9,8 +9,8 @@ from django.db.models import Count,Sum,Max
 
 
 # Create your views here.
-def table(request):
-    unique_customers=CustomerData.objects.values('customer_Id').annotate(frequent_modes_of_transanction=Max('mode_of_payments'))
+def table(request,start_date,end_date):
+    unique_customers=CustomerData.objects.filter(date__range=[start_date, end_date]).values('customer_Id').annotate(frequent_modes_of_transanction=Max('mode_of_payments'))
     # For TABLE
     customer = []
     values = []
@@ -24,8 +24,8 @@ def table(request):
         }
     # Return the JSON response
     return JsonResponse(response_data)
-def bar(request):
-    result=CustomerData.objects.values('mode_of_payments').annotate(total_amount=Sum('amount_spent'))
+def bar(request,start_date,end_date):
+    result=CustomerData.objects.filter(date__range=[start_date, end_date]).values('mode_of_payments').annotate(total_amount=Sum('amount_spent'))
     # For BAR GRAPH
     mode =[]
     amount=[]
@@ -40,9 +40,10 @@ def bar(request):
     # Return the JSON response
     return JsonResponse(response_data)
 
-def pie(requests):
-    grouped_data = CustomerData.objects.values('category').annotate(sum_field=Sum('amount_spent'))
-
+def pie(request,start_date,end_date):
+    grouped_data = CustomerData.objects.filter(date__range=[start_date, end_date]).values('category').annotate(sum_field=Sum('amount_spent'))
+    print(start_date)
+    print(end_date)
 # For PIE CHART
     labels = []
     total = []
@@ -78,20 +79,26 @@ def emi(request):
     # Return the JSON response
     return JsonResponse(response_data)
 
+
+
+
 @csrf_exempt
 def analytics(request):
     if request.method == "GET":
-        type = request.GET.get('type')
-        if type == "table":
-            response = table(request)
+        Type = request.GET.get('type')
+        start_date = request.GET.get("start_date")
+        end_date = request.GET.get("end_date")
+        
+        if Type == "table":
+            response = table(request,start_date,end_date)
             return response
-        elif type == "bar":
-            response = bar(request)
+        elif Type == "bar":
+            response = bar(request,start_date,end_date)
             return response
-        elif type == "pie":
-            response = pie(request)
+        elif Type == "pie":
+            response = pie(request,start_date,end_date)
             return response
-        elif type == "emi":
+        elif Type == "emi":
             response = emi(request)
             return response
     else:

@@ -7,17 +7,45 @@ from django.http import request
 import streamlit as st
 import pandas as pd
 import altair as alt
-
+import datetime
 
 st.set_page_config(layout="wide")
 st.markdown("<h1 style='text-align: center; '>Toucan Analytics</h1> <br>", unsafe_allow_html=True)
+
+# "2023-01-01", "2023-12-31"
+
+
+# Set the minimum and maximum date limits
+min_date = datetime.date(2023, 1, 1)
+max_date = datetime.date(2023, 12, 31)
+
+# Get the start and end dates from the user
+start_date = st.date_input("Start Date", min_value=min_date, max_value=max_date,value=min_date)
+end_date = st.date_input("End Date", min_value=min_date, max_value=max_date,value=max_date)
+
+# Perform any necessary validations or checks
+if start_date and end_date:
+    if start_date > end_date:
+        st.error("Error: Start Date must be before End Date.")
+    else:
+        params = {
+        "start_date": str(start_date),
+        "end_date": str(end_date)
+    }
+        # pie_url = "http://127.0.0.1:8000/analytics/?type=pie&start_date={start_date_str}&end_date={end_date_str}"
+        # bar_url = "http://127.0.0.1:8000/analytics/?type=bar&start_date={start_date_str}&end_date={end_date_str}"
+        # emi_url = "http://127.0.0.1:8000/analytics/?type=emi"
+        # table_url = "http://127.0.0.1:8000/analytics/?type=table&start_date={start_date_str}&end_date={end_date_str}"
+
+
+
 col1, col2 = st.columns(2, gap="large")
 
 with col1:
     st.markdown("<h2 style='text-align: center;margin-bottom:10px'>PIE CHART</h2>", unsafe_allow_html=True)
-    #  User input form
-    url = "http://127.0.0.1:8000/analytics/?type=pie"
-    response = requests.get(url)
+    pie_url = "http://127.0.0.1:8000/analytics/?type=pie"
+
+    response = requests.get(pie_url,params=params)
     if response.status_code == 200:
         # Extract the data from the response
         data = response.json()
@@ -40,8 +68,8 @@ with col2:
    
     st.markdown("<h2 style='text-align: center;'>Mode of Payments per Year</h2>", unsafe_allow_html=True)
     st.header("\n")
-    
-    get_method=requests.get('http://127.0.0.1:8000/analytics/?type=bar')
+    bar_url = "http://127.0.0.1:8000/analytics/?type=bar"
+    get_method=requests.get(bar_url,params=params)
     if get_method.status_code == 200:
         # Extract the data from the response
         data = get_method.json()
@@ -64,8 +92,8 @@ with col2:
 col3, col4 = st.columns(2, gap="large")
 with col3:
     st.markdown("<h2 style='text-align: center;margin-bottom:20px'>EMI PAYMENTS</h2>", unsafe_allow_html=True)
-
-    get_method=requests.get('http://127.0.0.1:8000/analytics/?type=emi')
+    emi_url = "http://127.0.0.1:8000/analytics/?type=emi"
+    get_method=requests.get(emi_url,params=params)
     if get_method.status_code == 200:
         # Extract the data from the response
         data = get_method.json()
@@ -86,7 +114,8 @@ with col3:
 
 with col4:
     st.markdown("<h2 style='text-align: center;margin-bottom:20px'>Frequent Mode Transanction by an individual Customer</h2>", unsafe_allow_html=True)
-    get_method=requests.get('http://127.0.0.1:8000/analytics/?type=table')
+    table_url = "http://127.0.0.1:8000/analytics/?type=table"
+    get_method=requests.get(table_url,params=params)
     if get_method.status_code == 200:
         # Extract the data from the response
         data = get_method.json()
