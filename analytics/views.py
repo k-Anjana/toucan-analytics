@@ -1,4 +1,4 @@
-from django.shortcuts import render,HttpResponse
+from django.shortcuts import render,HttpResponse,redirect
 from django.http import JsonResponse
 
 from django.views.decorators.csrf import csrf_exempt
@@ -101,12 +101,13 @@ def analytics(request):
         elif Type == "emi":
             response = emi(request)
             return response
+        
     else:
         return HttpResponse("WOW")
     
 
 def index(request):
-    return HttpResponse("index")
+    return redirect("http://192.168.56.159:8501")
 
 
 
