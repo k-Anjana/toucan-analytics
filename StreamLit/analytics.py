@@ -125,3 +125,32 @@ bar_chart = alt.Chart(source).mark_bar().encode(
 )
 
 st.altair_chart(bar_chart, use_container_width=True)
+
+
+# TABLE
+if st.button('GET TABLE'):
+    st.header("Table")
+    get_method=requests.get('http://127.0.0.1:8000/table')
+    if get_method.status_code == 200:
+        # Extract the data from the response
+        data = get_method.json()
+        customer = data['customer']
+        mode = data['values']
+        
+    # Create a sample data frame
+        data = {
+            'Customer Id': [i for i in customer],
+            'Frequent mode of Transanction': [i for i in mode],
+        }
+        df = pd.DataFrame(data)
+        st.dataframe(df)
+        # # Add a serial number column
+        # df.insert(0, 'S.No', range(1, len(df) + 1))
+        # # Convert DataFrame to HTML table without index column
+        # html_table = df.to_html(index=False)
+        # # Display the table
+        # st.write(html_table, unsafe_allow_html=True)
+        # st.write('\n')
+    else:
+        st.error(f'Error: {get_method.status_code}')
+    

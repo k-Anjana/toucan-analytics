@@ -5,7 +5,7 @@ import json
 from django.views.decorators.csrf import csrf_exempt
 
 import csv
-from django.db.models import Sum,Count
+from django.db.models import Sum,Count,Max
 from analytics.models import CustomerData,EMIData
 
 # # Create your views here.
@@ -71,6 +71,33 @@ def emi(request):
         return JsonResponse(result,safe=False)
     return HttpResponse('post method')
 
+
+
+#for mode of payments bar chart
+
+def payments(request):
+    if request.method=='GET':
+        result=list(CustomerData.objects.values('mode_of_payments').annotate(total_customers=Count('customer_Id')).order_by('-total_customers'))
+        return JsonResponse(result,safe=False)
+    return HttpResponse('post method')
+
+
+def table(request):
+    unique_customers=CustomerData.objects.values('customer_Id').annotate(frequent_modes_of_transanction=Max('mode_of_payments'))
+    # For TABLE
+    customer = []
+    values = []
+    for item in unique_customers:
+        customer.append(item['customer_Id'])
+        values.append(item['frequent_modes_of_transanction'])
+
+    response_data = {
+            "customer" : customer,
+            "values" :values
+        }
+    # Return the JSON response
+    return JsonResponse(response_data)
+
 @csrf_exempt
 def analytics(request):
     if request.method == "GET":
@@ -83,12 +110,4 @@ def analytics(request):
             return response 
     else:
         return HttpResponse("something wrong ")
-
-#for mode of payments bar chart
-
-def payments(request):
-    if request.method=='GET':
-        result=list(CustomerData.objects.values('mode_of_payments').annotate(total_customers=Count('customer_Id')).order_by('-total_customers'))
-        return JsonResponse(result,safe=False)
-    return HttpResponse('post method')
-
+    

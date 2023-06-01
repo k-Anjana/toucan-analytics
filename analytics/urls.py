@@ -7,5 +7,6 @@ urlpatterns = [
     path('emi/',emi),
     path('pie/',pie),
     path('payment/',payments),
+    path('table/',table),
     
 ]
