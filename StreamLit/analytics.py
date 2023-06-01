@@ -5,6 +5,8 @@ import json
 import streamlit as st
 from django.http import request
 import streamlit as st
+import altair as alt
+import pandas as pd
 
 # col1, col2= st.columns(2)
 
@@ -59,8 +61,4 @@ if response.status_code == 200:
     
 else:
     st.error(f'Error: {response.status_code}')
-
-
-
-
 

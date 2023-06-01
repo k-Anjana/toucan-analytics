@@ -5,8 +5,8 @@ import json
 from django.views.decorators.csrf import csrf_exempt
 
 import csv
-from django.db.models import Sum
-from analytics.models import CustomerData
+from django.db.models import Sum,Count
+from analytics.models import CustomerData,EMIData
 
 # # Create your views here.
 # @csrf_exempt
@@ -64,6 +64,13 @@ def pie(request):
         }
     return JsonResponse(response_data)
 
+#for EMI data bar chart
+def emi(request):
+    if request.method=='GET':
+        result=list(EMIData.objects.values('EMI_paid_on_time').annotate(total_customers=Count('customer_Id')).order_by('-total_customers'))
+        return JsonResponse(result,safe=False)
+    return HttpResponse('post method')
+
 @csrf_exempt
 def analytics(request):
     if request.method == "GET":
@@ -71,8 +78,9 @@ def analytics(request):
         if type == "pie":
             response = pie(request)
             return response
-        else:
-            return HttpResponse("NOT PIE")
+        elif type == "emi":
+            response = emi(request)
+            return response 
     else:
         return HttpResponse("something wrong ")
 
