@@ -1,41 +1,63 @@
-from django.shortcuts import render,HttpResponse
-from django.http import JsonResponse
-import requests
-import json
-from django.views.decorators.csrf import csrf_exempt
+from django.http import HttpResponse,JsonResponse
+from django.db.models  import Sum,Count,Max
+from .models import AllData, CustomerData
 
-import csv
-
-
-# Create your views here.
-@csrf_exempt
-def analytics(request):
-    
-    if request.method == "GET":
-        file = open('/home/gopikrishna/Taigo/analytics_env/toucan_analytics/Data/data_for_database.csv',mode='r')
-        data = csv.reader(file)
-        dL = list(data)
-        dataList = dL[1:]
-        for row in dataList:
-            customerid = row[1]
-            category = row[2]
-            modeOfPayment = row[3]
-            amount = row[4]
-            date = row[5]
-            break
-
-        dictt = {
-            
-            "customerid" : customerid,
-            "category" : category,
-            "mode" : modeOfPayment,
-            "amount" : amount,
-            "date" : date
-        }
-        file.close()
-        return JsonResponse(dictt)
-    
-    return HttpResponse("wow")
-
+# emi code
 def index(request):
-    return HttpResponse("index")
+    if request.method=='GET':
+        result=list(CustomerData.objects.values('EMI_paid_on_time').annotate(total_customers=Count('customer_Id')).order_by('-total_customers'))
+        return JsonResponse(result,safe=False)
+    return HttpResponse('post method')
+
+# pie chart code 
+def pichart(request):
+    if request.method=='GET':
+        grouped_data = list(AllData.objects.values('category').annotate(sum_field=Sum('amount_spent')).order_by('-sum_field'))
+    labels = []
+    total = []
+    sizes = []
+    for entry in grouped_data:
+        labels.append(entry['category']) 
+        total.append(entry['sum_field'])
+
+    sum_1 = sum(total)
+
+    for i in range(len(total)):
+        per = (total[i]/sum_1)*100
+        sizes.append(per)
+
+    response_data = {
+            "labels" : labels,
+            "sizes" : sizes,
+        }
+    return JsonResponse(response_data)
+
+# code based on mode of payment 
+
+
+def payment(request):
+    if request.method == 'GET':
+        result = list(AllData.objects.values('mode_of_payments').annotate(
+            total_customers=Count('customer_Id')).order_by('-total_customers'))
+        return JsonResponse(result, safe=False)
+    return HttpResponse('post method')
+
+
+# code for table
+
+def table(request):
+    if request.method == 'GET':
+        unique_customers=AllData.objects.values('customer_Id').annotate(frequent_modes_of_transanction=Max('mode_of_payments'))
+    # For TABLE
+        customer = []
+        values = []
+        for item in unique_customers:
+            customer.append(item['customer_Id'])
+            values.append(item['frequent_modes_of_transanction'])
+
+        response_data = {
+            "customer" : customer,
+            "values" :values
+        }
+    # Return the JSON response
+    return JsonResponse(response_data)
