@@ -98,16 +98,22 @@ def table(request):
     # Return the JSON response
     return JsonResponse(response_data)
 
-@csrf_exempt
-def analytics(request):
-    if request.method == "GET":
-        type = request.GET.get('type')
-        if type == "pie":
-            response = pie(request)
-            return response
-        elif type == "emi":
-            response = emi(request)
-            return response 
-    else:
-        return HttpResponse("something wrong ")
+# @csrf_exempt
+# def analytics(request):
+#     if request.method == "GET":
+#         type = request.GET.get('type')
+#         if type == "pie":
+#             response = pie(request)
+#             return response
+#         elif type == "emi":
+#             response = emi(request)
+#             return response 
+#         elif type == "payments":
+#             response = payments(request)
+#             return response 
+#         elif type == "table":
+#             response = table(request)
+#             return response 
+#     else:
+#         return HttpResponse("something wrong ")
     
