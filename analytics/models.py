@@ -1,6 +1,5 @@
 from django.db import models
-
-
+from django.contrib.auth.models import Permission
 
 class CustomerData(models.Model):
     
@@ -13,3 +12,7 @@ class CustomerData(models.Model):
 class EMIData(models.Model):
     customer_Id  = models.IntegerField()
     EMI_paid_on_time = models.CharField(max_length=6)
+
+
+
+

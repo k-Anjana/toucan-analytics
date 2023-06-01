@@ -107,8 +107,30 @@ def analytics(request):
     
 
 def index(request):
-    return redirect("http://192.168.56.159:8501")
+    return HttpResponse("index")
 
 
+from rest_framework import permissions
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from django.contrib.auth import authenticate
+import jwt
+from django.conf import settings
 
 
+class DataView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        try:
+            token = request.META['HTTP_AUTHORIZATION'].split()[1]
+            payload = jwt.decode(token, settings.SECRET_KEY, algorithms=['HS256'])
+            user_id = payload['user_id']
+
+            # outer_class_function = analytics
+            # outer_class_function(request)
+            
+            data = {"WOW":"WOW"}
+            return Response(data)
+        except Exception as e:
+            return Response({'error': str(e)}, status=401)
