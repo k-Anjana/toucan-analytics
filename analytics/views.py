@@ -84,4 +84,11 @@ def analytics(request):
     else:
         return HttpResponse("something wrong ")
 
+#for mode of payments bar chart
+
+def payments(request):
+    if request.method=='GET':
+        result=list(CustomerData.objects.values('mode_of_payments').annotate(total_customers=Count('customer_Id')).order_by('-total_customers'))
+        return JsonResponse(result,safe=False)
+    return HttpResponse('post method')
 

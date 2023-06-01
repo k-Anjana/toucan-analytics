@@ -41,34 +41,35 @@ import pandas as pd
 #     else:
 #         st.write('click here')
 
-
-st.header("PIE Chart")
+if st.button('GET PIE'):
+    st.header("PIE Chart")
     #  User input form
-url = "http://127.0.0.1:8000/analytics/?type=pie"
-response = requests.get(url)
-if response.status_code == 200:
+    response=requests.get('http://127.0.0.1:8000/pie')
+    # url = "http://127.0.0.1:8000/analytics/?type=pie"
+    # response = requests.get(url)
+    if response.status_code == 200:
     # Extract the data from the response
-    data = response.json()
-    labels = data['labels']
-    sizes = data['sizes']
+        data = response.json()
+        labels = data['labels']
+        sizes = data['sizes']
     # Pie chart, where the slices will be ordered and plotted counter-clockwise:
     
-    explode = [0,0,0,0,0,0]
-    fig1, ax1 = plt.subplots()
-    ax1.pie(sizes, explode=explode, labels=labels, autopct='%1.1f%%',startangle=90)
-    ax1.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
-    st.pyplot(fig1)
+        explode = [0,0,0,0,0,0]
+        fig1, ax1 = plt.subplots()
+        ax1.pie(sizes, explode=explode, labels=labels, autopct='%1.1f%%',startangle=90)
+        ax1.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+        st.pyplot(fig1)
     
-else:
-    st.error(f'Error: {response.status_code}')
+    else:
+        st.error(f'Error: {response.status_code}')
 
 emi_list =[]
 customer_list =[]
 
 
 
-if st.button('GET'):
-
+if st.button('GET EMI graph '):
+    st.header("EMI graph")
     get_method=requests.get('http://127.0.0.1:8000/emi/')
     if get_method.status_code==200:
         data=get_method.json()
@@ -90,6 +91,37 @@ bar_chart = alt.Chart(source).mark_bar().encode(
     x='EMI Paid On Time:O',
     y='Number of customers:Q',
     # c=user_colour,
+)
+
+st.altair_chart(bar_chart, use_container_width=True)
+
+
+#bargraph 
+payment_list =[]
+customer_list =[]
+
+if st.button('GET PAYMENT GRAPH'):
+    st.header("payment graph")
+    get_method=requests.get('http://127.0.0.1:8000/payment/')
+    if get_method.status_code==200:
+        data=get_method.json()
+        for item in data:
+            payment_list.append(item['mode_of_payments'])
+            customer_list.append(item['total_customers'])
+    else:
+        st.write(get_method.status_code)
+
+   
+source = pd.DataFrame({
+    'mode_of_payments': payment_list,
+    'Number of customers': customer_list
+ })
+
+
+bar_chart = alt.Chart(source).mark_bar().encode(
+    x='mode_of_payments:O',
+    y='Number of customers:Q',
+    
 )
 
 st.altair_chart(bar_chart, use_container_width=True)
