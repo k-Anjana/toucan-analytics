@@ -23,7 +23,7 @@ def table(request,start_date,end_date):
             "values" :values
         }
     # Return the JSON response
-    return JsonResponse(response_data)
+    return response_data
 def bar(request,start_date,end_date):
     result=CustomerData.objects.filter(date__range=[start_date, end_date]).values('mode_of_payments').annotate(total_amount=Sum('amount_spent'))
     # For BAR GRAPH
@@ -38,7 +38,7 @@ def bar(request,start_date,end_date):
         }
     
     # Return the JSON response
-    return JsonResponse(response_data)
+    return response_data
 
 def pie(request,start_date,end_date):
     grouped_data = CustomerData.objects.filter(date__range=[start_date, end_date]).values('category').annotate(sum_field=Sum('amount_spent'))
@@ -62,7 +62,7 @@ def pie(request,start_date,end_date):
             "labels" : labels,
             "sizes" : sizes,
         }
-    return JsonResponse(response_data)
+    return response_data
 
 def emi(request):
     EMI=EMIData.objects.values('EMI_paid_on_time').annotate(total_customers=Count('customer_Id')).order_by()
@@ -77,34 +77,8 @@ def emi(request):
         }
     
     # Return the JSON response
-    return JsonResponse(response_data)
-
-
-
-
-@csrf_exempt
-def analytics(request):
-    if request.method == "GET":
-        Type = request.GET.get('type')
-        start_date = request.GET.get("start_date")
-        end_date = request.GET.get("end_date")
-        
-        if Type == "table":
-            response = table(request,start_date,end_date)
-            return response
-        elif Type == "bar":
-            response = bar(request,start_date,end_date)
-            return response
-        elif Type == "pie":
-            response = pie(request,start_date,end_date)
-            return response
-        elif Type == "emi":
-            response = emi(request)
-            return response
-        
-    else:
-        return HttpResponse("WOW")
-    
+    return response_data
+  
 
 def index(request):
     return HttpResponse("index")
@@ -134,3 +108,32 @@ class DataView(APIView):
             return Response(data)
         except Exception as e:
             return Response({'error': str(e)}, status=401)
+        
+
+class Analytics(APIView):
+    # permission_classes = [permissions.IsAuthenticated]
+    # permission_classes = [permissions.IsAuthenticated]
+    
+    def get(self,request,*args,**kwargs):
+        try:
+            
+            Type = self.request.GET.get('type')
+            start_date = self.request.GET.get("start_date")
+            end_date = self.request.GET.get("end_date")
+            if Type == "table":
+                res = table(request,start_date,end_date)
+                # return response
+            elif Type == "bar":
+                res = bar(request,start_date,end_date)
+                # return response
+            elif Type == "pie":
+                res = pie(request,start_date,end_date)
+                # return response
+            elif Type == "emi":
+                res = emi(request)
+                # return response
+            return JsonResponse(res)
+            # data = {"WOW":"wow - 1"}
+            # return Response(data)
+        except Exception as e:
+            return Response({'error': str(e)})
