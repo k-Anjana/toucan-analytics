@@ -1,3 +1,6 @@
 from django.contrib import admin
+from .models import CustomerData,EMIData
 
-# Register your models here.
+
+admin.site.register(CustomerData)
+admin.site.register(EMIData)
