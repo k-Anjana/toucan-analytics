@@ -7,7 +7,7 @@ from django.http import request
 import streamlit as st
 import altair as alt
 import pandas as pd
-
+import datetime
 # col1, col2= st.columns(2)
 
 # data = {
@@ -41,12 +41,45 @@ import pandas as pd
 #     else:
 #         st.write('click here')
 
+    # "2023-01-01", "2023-12-31"
+
+min_date = datetime.date(2023, 1, 1)
+max_date = datetime.date(2023, 12, 31)
+
+col1, col2, col3, col4, col5, col6, col7, col8 = st.columns(8)
+
+with col1:
+    st.write("")
+with col2:
+    st.write("")
+with col3:
+    st.write("")
+with col4:
+    st.write("")
+with col5:
+    st.write("")
+with col6:
+    st.write("")
+with col7:
+    start_date = st.date_input("Start Date", min_value=min_date, max_value=max_date,value=min_date)
+with col8:
+    end_date = st.date_input("End Date", min_value=min_date, max_value=max_date,value=max_date)
+
+
+if start_date and end_date:
+    if start_date > end_date:
+        st.error("Error: Start Date must be before End Date.")
+    else:
+        params = {
+        "start_date": str(start_date),
+        "end_date": str(end_date)
+    }
 col1, col2 = st.columns(2, gap="large")
 with col1:
     if st.button('GET PIE GRAPH'):
         st.header("PIE Chart")
     #  User input form
-        response=requests.get('http://127.0.0.1:8000/pie')
+        response=requests.get('http://127.0.0.1:8000/pie',params=params)
     # url = "http://127.0.0.1:8000/analytics/?type=pie"
     # response = requests.get(url)
         if response.status_code == 200:
@@ -68,8 +101,6 @@ with col1:
 with col2:
     emi_list =[]
     customer_list =[]
-
-
 
     if st.button('GET EMI graph '):
         st.header("EMI graph")
@@ -106,7 +137,7 @@ with col3:
 
     if st.button('GET PAYMENT GRAPH'):
         st.header("payment graph")
-        get_method=requests.get('http://127.0.0.1:8000/payment/')
+        get_method=requests.get('http://127.0.0.1:8000/payment/',params=params)
         if get_method.status_code==200:
             data=get_method.json()
             for item in data:
@@ -134,7 +165,7 @@ with col4:
 # TABLE
     if st.button('GET TABLE'):
         st.header("Table")
-        get_method=requests.get('http://127.0.0.1:8000/table')
+        get_method=requests.get('http://127.0.0.1:8000/table',params=params)
         if get_method.status_code == 200:
         # Extract the data from the response
             data = get_method.json()
