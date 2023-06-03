@@ -1,13 +1,7 @@
-# Login -> jwt token save
-# subsequent calls get – header – put jwt token and issue get calls
 
 import streamlit as st
 import matplotlib.pyplot as plt
 import requests
-import json
-import streamlit as st
-from django.http import request
-import streamlit as st
 import pandas as pd
 import altair as alt
 import datetime
@@ -16,11 +10,7 @@ st.set_page_config(layout="wide")
 
 local_host = 'http://localhost:8000/'
 
-
-# Create a session state object
 session_state = st.session_state
-
-token = None
 
 def get_jwt_token(username, password):
     url = local_host + 'api/token/'
@@ -49,10 +39,8 @@ def get_data(token):
         return None
 
 
-
-# Check if the user is logged in
 if 'logged_in' not in st.session_state or not st.session_state['logged_in']:
-    st.markdown("<h1 style='text-align: center; '>Login Page</h1> <br>", unsafe_allow_html=True)
+    st.markdown("<h1 style='text-align: center; '>Login</h1> <br>", unsafe_allow_html=True)
     col1, col2, col3 = st.columns(3)
     with col1:
         st.write("")
@@ -80,8 +68,6 @@ if 'logged_in' not in st.session_state or not st.session_state['logged_in']:
 if 'logged_in' in st.session_state and st.session_state['logged_in']:
     token = st.session_state['token']
     st.markdown("<h1 style='text-align: center; '>Toucan Analytics</h1> <br>", unsafe_allow_html=True)
-
-    # "2023-01-01", "2023-12-31"
 
     min_date = datetime.date(2023, 1, 1)
     max_date = datetime.date(2023, 12, 31)
@@ -115,10 +101,6 @@ if 'logged_in' in st.session_state and st.session_state['logged_in']:
             "end_date": str(end_date)
         }
         
-# table_url = "http://127.0.0.1:8000/analytics/?type=table&start_date={start_date_str}&end_date={end_date_str}"
-
-
-
     col1, col2 = st.columns(2, gap="large")
 
     with col1:
@@ -127,17 +109,15 @@ if 'logged_in' in st.session_state and st.session_state['logged_in']:
         headers = {'Authorization': f'Bearer {token}'}
         response = requests.get(url, headers=headers,params=params)
         if response.status_code == 200:
-            # Extract the data from the response
             data = response.json()
             labels = data['labels']
             sizes = data['sizes']
-            # Pie chart, where the slices will be ordered and plotted counter-clockwise:
             colors = ['violet','indigo','blue','green','yellow','orange']
             wedgeprops = {'linewidth': 0.5, 'edgecolor': 'white'}
             explode = [0,0,0,0,0,0]
             fig1, ax1 = plt.subplots(figsize=(4, 4))
             ax1.pie(sizes, explode=explode, labels=labels, autopct='%1.1f%%',startangle=90,colors=colors,wedgeprops=wedgeprops)
-            ax1.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+            ax1.axis('equal')  
             st.pyplot(fig1)
             st.write('\n')
         else:
@@ -145,14 +125,12 @@ if 'logged_in' in st.session_state and st.session_state['logged_in']:
             
 
     with col2:
-    
         st.markdown("<h2 style='text-align: center;'>Amount Spent Vs Mode of Payments</h2>", unsafe_allow_html=True)
         st.header("\n")
         url = local_host + 'analytics/?type=bar'
         headers = {'Authorization': f'Bearer {token}'}
         response = requests.get(url, headers=headers,params=params)
         if response.status_code == 200:
-            # Extract the data from the response
             data = response.json()
             mode_list = data['mode']
             amount_list = data['amount']
@@ -169,15 +147,14 @@ if 'logged_in' in st.session_state and st.session_state['logged_in']:
         else:
             st.error(f'Error: {response.status_code}')
 
-
     col3, col4 = st.columns(2, gap="large")
+
     with col3:
         st.markdown("<h2 style='text-align: center;margin-bottom:20px'>EMI RE-PAYMENTS</h2>", unsafe_allow_html=True)
         url = local_host + 'analytics/?type=emi'
         headers = {'Authorization': f'Bearer {token}'}
         response = requests.get(url, headers=headers,params=params)
         if response.status_code == 200:
-            # Extract the data from the response
             data = response.json()
             in_time = data['in_time']
             total = data['total']
@@ -200,22 +177,17 @@ if 'logged_in' in st.session_state and st.session_state['logged_in']:
         headers = {'Authorization': f'Bearer {token}'}
         response = requests.get(url, headers=headers,params=params)
         if response.status_code == 200:
-            # Extract the data from the response
             data = response.json()
             customer = data['customer']
             mode = data['values']
-            
-        # Create a sample data frame
+          
             data = {
                 'Customer Id': [i for i in customer],
                 'Frequent mode of Transanction': [i for i in mode],
             }
             df = pd.DataFrame(data)
-
-            # Insert the 'S.No' column
-            # df.insert(0, 'S.No', range(1, len(df) + 1))
-
-
+            df.index = [i+1 for i in range(len(df))]
+            df.index.name = 'S.No'
             st.dataframe(df, height=350)
             
         else:
