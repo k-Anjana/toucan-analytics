@@ -76,7 +76,6 @@ def emi(request):
             "total" : total,
         }
     
-    # Return the JSON response
     return response_data
   
 
@@ -111,29 +110,23 @@ class DataView(APIView):
         
 
 class Analytics(APIView):
-    # permission_classes = [permissions.IsAuthenticated]
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
     
     def get(self,request,*args,**kwargs):
         try:
-            
+            res ={"WOW":"wow - 1"}
             Type = self.request.GET.get('type')
             start_date = self.request.GET.get("start_date")
             end_date = self.request.GET.get("end_date")
             if Type == "table":
                 res = table(request,start_date,end_date)
-                # return response
             elif Type == "bar":
                 res = bar(request,start_date,end_date)
-                # return response
             elif Type == "pie":
                 res = pie(request,start_date,end_date)
-                # return response
             elif Type == "emi":
                 res = emi(request)
-                # return response
             return JsonResponse(res)
-            # data = {"WOW":"wow - 1"}
-            # return Response(data)
+            
         except Exception as e:
             return Response({'error': str(e)})

@@ -1,6 +1,8 @@
 from django.test import TestCase
 from analytics.models import CustomerData, EMIData
 from datetime import date
+from django.http import JsonResponse
+from .views import table, bar, pie, emi
 
 class CustomerDataTestCase(TestCase):
     @classmethod
@@ -61,11 +63,6 @@ class EMIDataTestCase(TestCase):
         obj.delete()
 
         self.assertFalse(EMIData.objects.filter(customer_Id=1).exists())
-
-from django.test import TestCase
-from django.http import JsonResponse
-from .models import CustomerData, EMIData
-from .views import table, bar, pie, emi
 
 
 class AnalyticsTestCase(TestCase):
