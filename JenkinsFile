@@ -33,12 +33,6 @@ pipeline {
         stage('Run Streamlit Server') {
             steps {
                 sh '/home/ubuntu/django_env/bin/streamlit run analytics.py &'
-                // sh '/home/ubuntu/django_env/bin/streamlit run --server.port=8000 --server.address=0.0.0.0 analytics.py &'
-
-                // script {
-                //     def streamlitPort = sh(returnStdout: true, script: 'shuf -i 7501 -n 1').trim()
-                //     sh "/home/ubuntu/django_env/bin/streamlit run --server.port=${streamlitPort} analytics.py &"
-                // }
             }
         }
         
@@ -48,20 +42,7 @@ pipeline {
                 sh ' pip install gunicorn' 
                 sh 'ls'
                 sh 'pwd'
-                //sh 'sudo cd /home/ubuntu/jenkins_workspace/toucan_analytics && sudo rm -rf *'
                 sh 'sudo cp -r ./* /home/ubuntu/jenkins_workspace/toucan_analytics'
-                //sh '/home/ubuntu/django_env/bin/gunicorn toucan_analytics.wsgi:application --bind 0.0.0.0:8000 --daemon'
-                // sh 'sleep 10' // Wait for Gunicorn server to start
-                // // // sh 'python3 manage.py migrate'
-                // // sh 'python3 manage.py runserver 0.0.0.0:8000 &'
-                // sh ' /home/ubuntu/django_env/bin/gunicorn -c /home/ubuntu/conf/gunicorn_conf.py toucan_analytics.wsgi'
-                // //sh '/home/ubuntu/django_env/bin/conf/gunicorn_conf.py'
-                
-                // sh '/etc/systemd/system/toucan_analytics.service'
-                // sh 'sudo systemctl daemon-reload' // Reload systemd configuration/
-                //   sh 'sudo systemctl enable gunicorn.service' 
-                //   sh 'systemctl start gunicorn' 
-                //   sh 'systemctl status gunicorn'
                 sh 'python3 manage.py migrate'
                 sh 'sudo systemctl stop gunicorn'
                 sh 'sudo systemctl start gunicorn'
